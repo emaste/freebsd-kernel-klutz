@@ -1,0 +1,2 @@
+FreeBSD debugging kernel module with various examples of bad behaviour, for
+testing the kernel's diagnostic capabilities and panic / dump handling.
