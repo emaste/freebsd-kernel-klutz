@@ -6,5 +6,12 @@ compute_engine_instance:
   image: freebsd-13-2-release-amd64
 
 task:
+
+  install_script:
+  - pkg install -y gitup
+
+  clone_src_script:
+  - gitup stable
+
   script:
   - make
