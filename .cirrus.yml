@@ -8,3 +8,5 @@ compute_engine_instance:
 task:
   script:
   - make
+  - make install
+  - kldload evil-amd64-13
