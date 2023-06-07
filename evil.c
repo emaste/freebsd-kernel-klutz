@@ -1,4 +1,5 @@
 /*-
+ * Copyright (c) 2023 The FreeBSD Foundation.
  * Copyright (c) 2007-2012 Sandvine Incorporated. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,13 +47,17 @@ static void panic_callback(void *arg)
 }
 
 static int panic_timeout_proc(SYSCTL_HANDLER_ARGS)
-{	int error;
+{
+	struct callout panic_callout;
+	int error;
         int foo = 0;
+
         error = sysctl_handle_int(oidp, &foo, 0, req);
         if (error || !req->newptr)
                 return error;
 
-        timeout(panic_callback, 0, 1*hz);
+	callout_init(&panic_callout, 1);
+	callout_reset(&panic_callout, 1*hz, panic_callback, NULL);
         printf("panic callback in 1 second\n");
 	return error;
 }
@@ -176,15 +181,16 @@ static void timeout_cli(void *arg)
 
 static int timeout_cli_proc(SYSCTL_HANDLER_ARGS)
 {
-	struct callout_handle test_timeout_handle;
+	struct callout test_timeout_handle;
 	int error;
         int delay = 0;
         error = sysctl_handle_int(oidp, &delay, 0, req);
         if (error || !req->newptr)
                 return error;
 
-        test_timeout_handle = timeout(timeout_cli, (void *)(uintptr_t)delay,
-	    1*hz);
+	callout_init(&test_timeout_handle, 1);
+	callout_reset(&test_timeout_handle, 1*hz, timeout_cli,
+	    (void *)(uintptr_t)delay);
         printf("timeout to turn cli off will go off in 1s\n");
 	return error;
 }
@@ -200,7 +206,7 @@ static int testtrap(SYSCTL_HANDLER_ARGS)
         if (error || req->newptr == NULL)
                 return error;
         /* And a trap */
-        *(char *)0 = 0;
+	__builtin_trap();
 
         /* Make GCC happy */
         return error;
@@ -244,6 +250,7 @@ static void grab_lock(void *arg)
 }
 static int nonsleepable_lock(SYSCTL_HANDLER_ARGS)
 {
+	struct callout lock_callout;
 	int error;
 	int foo = 0;
 	struct mtx m;
@@ -251,7 +258,8 @@ static int nonsleepable_lock(SYSCTL_HANDLER_ARGS)
 	if (error || req->newptr == NULL)
 		return error;
         mtx_init(&m, "test mutex", NULL, MTX_DEF);
-        timeout(grab_lock, &m, 2*hz);
+	callout_init(&lock_callout, 1);
+	callout_reset(&lock_callout, 2*hz, grab_lock, &m);
 	printf("Callback scheduled for 2s with lock %p\n", &m);
 
 	mtx_lock(&m);
@@ -323,13 +331,16 @@ SYSCTL_PROC(_debug, OID_AUTO, recursive_fn, CTLTYPE_INT|CTLFLAG_RW,
 
 /* Infinite recursion from a callout */
 static int recurse_timeout_proc(SYSCTL_HANDLER_ARGS)
-{	int error;
+{
+	struct callout recurse_callout;
+	int error;
         int foo = 0;
         error = sysctl_handle_int(oidp, &foo, 0, req);
         if (error || !req->newptr)
                 return error;
 
-        timeout(recurse, 0, 1*hz);
+	callout_init(&recurse_callout, 1);
+	callout_reset(&recurse_callout, 1*hz, recurse, NULL);
         printf("recursive function will start in 1s\n");
 	return error;
 }
