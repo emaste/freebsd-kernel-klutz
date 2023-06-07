@@ -9,6 +9,7 @@ task:
   script:
   - make
   - make install
-  - kldload evil-amd64-13
+  - ktrace -i kldload evil-amd64-13
+  - kdump
   - dmesg | tail -n 20
   - dmesg | grep -q "Playground KLD loaded"
