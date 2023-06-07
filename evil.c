@@ -147,6 +147,7 @@ SYSCTL_PROC(_debug, OID_AUTO, callout_spin, CTLTYPE_INT|CTLFLAG_RW,
     0, 0, timeout_proc, "I", "spin in callout handler");
 #endif
 
+#if 0
 /* Call mtx_lock after disabling interrupts */
 static int lock_with_cli(SYSCTL_HANDLER_ARGS)
 {
@@ -171,6 +172,7 @@ static int lock_with_cli(SYSCTL_HANDLER_ARGS)
 }
 SYSCTL_PROC(_debug, OID_AUTO, lock_with_cli, CTLTYPE_INT|CTLFLAG_RW,
     0, 0, lock_with_cli, "I", "Test locking with CLI");
+#endif
 
 /* Turn off interrupts from within a callout handler */
 static void timeout_cli(void *arg)
