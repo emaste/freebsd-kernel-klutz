@@ -10,3 +10,5 @@ task:
   - make
   - make install
   - kldload evil-amd64-13
+  - dmesg | tail -n 20
+  - dmesg | grep -q "Playground KLD loaded"
