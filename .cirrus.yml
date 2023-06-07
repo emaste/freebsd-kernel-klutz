@@ -11,5 +11,6 @@ task:
   - make install
   - ktrace -i kldload evil-amd64-13
   - kdump
+  - sleep 1
   - dmesg | tail -n 20
   - dmesg | grep -q "Playground KLD loaded"
