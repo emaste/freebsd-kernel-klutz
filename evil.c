@@ -293,26 +293,14 @@ static int call_null_pointer(SYSCTL_HANDLER_ARGS)
 SYSCTL_PROC(_debug, OID_AUTO, call_null_fp, CTLTYPE_INT|CTLFLAG_RW,
     0, 0, call_null_pointer, "I", "Call null function pointer");
 
-static void *
-get_esp(void)
-{
-#if 0
-        uintptr_t   data;
-
-        __asm __volatile("movl %%esp,%0" : "=r" (data));
-        return (void *)(data);
-#else
-	return (void *)0;
-#endif
-}
-
 /* Infinite recursion (to test doublefault handler) */
 static void recurse(void *arg)
 {
 	volatile int i = 1;
 	int level = (int)(uintptr_t)arg;
 	(void)i;
-	printf("recurse(), level=%d esp=%p\n", level, get_esp());
+	printf("recurse(), level=%d frame_address=%p\n", level,
+	    __builtin_frame_address(0));
 	recurse((void *)(uintptr_t)(level + 1));
 }
 
