@@ -335,7 +335,6 @@ static int recurse_timeout_proc(SYSCTL_HANDLER_ARGS)
 SYSCTL_PROC(_debug, OID_AUTO, callout_recursive_fn, CTLTYPE_INT|CTLFLAG_RW,
     0, 0, recurse_timeout_proc, "I", "Start recursive function from callback handler");
 
-#if 0
 /* Use floating point in kernel */
 static int
 fpu_in_kernel(SYSCTL_HANDLER_ARGS)
@@ -346,19 +345,16 @@ fpu_in_kernel(SYSCTL_HANDLER_ARGS)
 	error = sysctl_handle_int(oidp, &v, 0, req);
 	if (error || !req->newptr)
 		return error;
-#if __FreeBSD_version < 800000
-	__asm__ ( "fild %1;"
-		  "fild %2;"
+	__asm__ ( "fildl %1;"
+		  "fildl %2;"
 		  "faddp;"
-		  "fistp %0;" : "=g" (v) : "g" (v), "g" (v) ) ;
-#endif
+		  "fistpl %0;" : "=g" (v) : "g" (v), "g" (v) ) ;
 
-	//printf("value * 0.375 = %f\n", (double)v * 0.375);
+	printf("value * 0.375 = %f\n", f * 0.375);
 	return error;
 }
 SYSCTL_PROC(_debug, OID_AUTO, fpu_in_kernel, CTLTYPE_INT|CTLFLAG_RW,
     0, 0, fpu_in_kernel, "I", "Start recursive function from callback handler");
-#endif
 
 /* 
  * Load handler that deals with the loading and unloading of a KLD.
@@ -384,9 +380,7 @@ playground_modevent(struct module *m, int cmd, void *arg)
 		uprintf("sysctl debug.call_null_fp=1             call null function pointer\n");
 		uprintf("sysctl debug.recursive_fn=1             infinitely recursive function\n");
 		uprintf("sysctl debug.callout_recursive_fn=1     infinite recursion from callout\n");
-#if 0
 		uprintf("sysctl debug.fpu_in_kernel=1		execute fpu code\n");
-#endif
 		break;
 	case MOD_UNLOAD:              /* kldunload */
 		uprintf("Playground KLD unloaded.\n");
