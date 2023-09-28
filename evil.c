@@ -40,6 +40,23 @@
 #define MUTEX_NOINLINE
 MALLOC_DEFINE(M_PLAYGROUND, "memleak", "Memory test tool");
 
+/* Plain old panic */
+static int
+panic_proc(SYSCTL_HANDLER_ARGS)
+{
+	int error, val = 0;
+
+	error = sysctl_handle_int(oidp, &val, 0, req);
+	if (error || !req->newptr)
+		return error;
+
+	if (val != 0)
+		panic("val %d is not zero", val);
+	return 0;
+}
+SYSCTL_PROC(_debug, OID_AUTO, panic, CTLTYPE_INT|CTLFLAG_RW,
+    0, 0, panic_proc, "I", "panic from sysctl handler");
+
 /* Panic from a callout */
 static void panic_callback(void *arg)
 {
@@ -368,6 +385,7 @@ playground_modevent(struct module *m, int cmd, void *arg)
 	case MOD_LOAD:                /* kldload */
 		printf("kernel-evil playground KLD loaded.\n");
 		uprintf("kernel-evil playground KLD loaded.\n\n");
+		uprintf("sysctl debug.panic=1                    panic from sysctl handler\n");
 		uprintf("sysctl debug.callout_panic=1            panic from a callout\n");
                 uprintf("sysctl debug.leakmem=1024               leak 1K\n");
 		uprintf("sysctl debug.test_redzone=1             redzone test\n");
