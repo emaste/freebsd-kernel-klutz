@@ -98,22 +98,16 @@ static int test_redzone(SYSCTL_HANDLER_ARGS)
 SYSCTL_PROC(_debug, OID_AUTO, test_redzone, CTLTYPE_INT|CTLFLAG_RW,
     0, 0, test_redzone, "I", "Test redzone");
 
-#if 0
 /* Spin in a callout handler */
 /* rdtsc() seems to be failing on i386 svos9 */
-static struct callout_handle test_timeout_handle;
+static struct callout test_timeout_handle;
 extern unsigned int tsc_freq;
 static void test_timeout(void *arg)
 {
         int64_t endat;
 	int64_t now;
 	int delay = (int)(uintptr_t)arg;
-#if __FreeBSD_version < 800000
-        printf("waiting for %d ms, ticks=%d softticks=%d\n", delay, ticks,
-	    softticks);
-#else
         printf("waiting for %d ms, ticks=%d\n", delay, ticks);
-#endif
 
 	now = (int64_t)rdtsc();
         endat = now + (int64_t)tsc_freq * (delay / 1000);
@@ -123,11 +117,7 @@ static void test_timeout(void *arg)
                 ;
 
 	printf("tsc=%jd\n", (intmax_t)rdtsc());
-#if __FreeBSD_version < 800000
-        printf("done waiting, ticks=%d softticks=%d\n", ticks, softticks);
-#else
         printf("done waiting, ticks=%d\n", ticks);
-#endif
 }
 
 static int timeout_proc(SYSCTL_HANDLER_ARGS)
@@ -138,14 +128,14 @@ static int timeout_proc(SYSCTL_HANDLER_ARGS)
         if (error || !req->newptr)
                 return error;
 
-        test_timeout_handle = timeout(test_timeout, (void *)(uintptr_t)delay,
-	    1*hz);
+	callout_init(&test_timeout_handle, 1);
+	callout_reset(&test_timeout_handle, hz, test_timeout,
+	    (void *)(uintptr_t)delay);
         printf("timeout will go off in 1s\n");
 	return error;
 }
 SYSCTL_PROC(_debug, OID_AUTO, callout_spin, CTLTYPE_INT|CTLFLAG_RW,
     0, 0, timeout_proc, "I", "spin in callout handler");
-#endif
 
 /* Call mtx_lock after disabling interrupts */
 static int lock_with_cli(SYSCTL_HANDLER_ARGS)
@@ -385,9 +375,7 @@ playground_modevent(struct module *m, int cmd, void *arg)
 		uprintf("sysctl debug.callout_panic=1            panic from a callout\n");
                 uprintf("sysctl debug.leakmem=1024               leak 1K\n");
 		uprintf("sysctl debug.test_redzone=1             redzone test\n");
-#if 0
 		uprintf("sysctl debug.callout_spin=1500          spin in callout handler (1.5s)\n");
-#endif
 		uprintf("sysctl debug.lock_with_cli=1            mtx lock after cli\n");
 		uprintf("sysctl debug.callout_cli=1              turn off interrupts from callout\n");
 		uprintf("sysctl debug.testtrap=1                 write to addr 0\n");
