@@ -384,23 +384,23 @@ playground_modevent(struct module *m, int what, void *arg)
  
 	switch (what) {
 	case MOD_LOAD:                /* kldload */
-	        uprintf("Playground KLD loaded.\n\n");
-		uprintf("sysctl debug.callout_panic=1		panic from a callout\n");
-                uprintf("sysctl debug.leakmem=1024		leak 1K\n");
-		uprintf("sysctl debug.test_redzone=1		redzone test\n");
+		uprintf("Playground KLD loaded.\n\n");
+		uprintf("sysctl debug.callout_panic=1            panic from a callout\n");
+                uprintf("sysctl debug.leakmem=1024               leak 1K\n");
+		uprintf("sysctl debug.test_redzone=1             redzone test\n");
 #if 0
-                uprintf("sysctl debug.callout_spin=1500		spin in callout handler (1.5s)\n");
+		uprintf("sysctl debug.callout_spin=1500          spin in callout handler (1.5s)\n");
 #endif
-                uprintf("sysctl debug.lock_with_cli=1		mtx lock after cli\n");
-                uprintf("sysctl debug.callout_cli=1		turn off interrupts from callout\n");
-		uprintf("sysctl debug.testtrap=1		write to addr 0\n");
-		uprintf("sysctl debug.writetext=1		write to module .text\n");
-		uprintf("sysctl debug.nslock=1			sleep with nonsleepable lock held\n");
-                uprintf("sysctl debug.call_null_fp=1		call null function pointer\n");
-                uprintf("sysctl debug.recursive_fn=1		infinitely recursive function\n");
-                uprintf("sysctl debug.callout_recursive_fn=1	infinite recursion from callout\n");
+		uprintf("sysctl debug.lock_with_cli=1            mtx lock after cli\n");
+		uprintf("sysctl debug.callout_cli=1              turn off interrupts from callout\n");
+		uprintf("sysctl debug.testtrap=1                 write to addr 0\n");
+		uprintf("sysctl debug.writetext=1                write to module .text\n");
+		uprintf("sysctl debug.nslock=1                   sleep with nonsleepable lock held\n");
+		uprintf("sysctl debug.call_null_fp=1             call null function pointer\n");
+		uprintf("sysctl debug.recursive_fn=1             infinitely recursive function\n");
+		uprintf("sysctl debug.callout_recursive_fn=1     infinite recursion from callout\n");
 #if 0
-                uprintf("sysctl debug.fpu_in_kernel=1		execute fpu code\n");
+		uprintf("sysctl debug.fpu_in_kernel=1		execute fpu code\n");
 #endif
 		break;
 	case MOD_UNLOAD:              /* kldunload */
