@@ -147,32 +147,40 @@ SYSCTL_PROC(_debug, OID_AUTO, callout_spin, CTLTYPE_INT|CTLFLAG_RW,
     0, 0, timeout_proc, "I", "spin in callout handler");
 #endif
 
-#if 0
 /* Call mtx_lock after disabling interrupts */
 static int lock_with_cli(SYSCTL_HANDLER_ARGS)
 {
         struct mtx test_mtx;
-        int foo = 0;
+        unsigned long flags = 0;
         int error;
 
-        __asm __volatile("pushf; pop %0" : "=r" (foo));
-        error = sysctl_handle_int(oidp, &foo, 0, req);
+#if defined(__x86_64__)
+	flags = read_rflags();
+#elif defined(__i386__)
+        flags = read_eflags();
+#else
+#error no arch support
+#endif
+        error = sysctl_handle_int(oidp, &flags, 0, req);
 
         mtx_init(&test_mtx, "test mutex", NULL, MTX_DEF);
         __asm __volatile("cli");
-        __asm __volatile("pushf; pop %0" : "=r" (foo));
+#if defined(__x86_64__)
+	flags = read_rflags();
+#elif defined(__i386__)
+	flags = read_eflags();
+#endif
         mtx_lock(&test_mtx);
         mtx_unlock(&test_mtx);
         __asm __volatile("sti");
 
-        printf("\nFlags=0x%x\n", foo);
+        printf("\nFlags=0x%lx\n", flags);
 
         
         return error;
 }
 SYSCTL_PROC(_debug, OID_AUTO, lock_with_cli, CTLTYPE_INT|CTLFLAG_RW,
     0, 0, lock_with_cli, "I", "Test locking with CLI");
-#endif
 
 /* Turn off interrupts from within a callout handler */
 static void timeout_cli(void *arg)
