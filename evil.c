@@ -378,11 +378,11 @@ SYSCTL_PROC(_debug, OID_AUTO, fpu_in_kernel, CTLTYPE_INT|CTLFLAG_RW,
  * Load handler that deals with the loading and unloading of a KLD.
  */
 static int
-playground_modevent(struct module *m, int what, void *arg)
+playground_modevent(struct module *m, int cmd, void *arg)
 {
 	int err = 0;
  
-	switch (what) {
+	switch (cmd) {
 	case MOD_LOAD:                /* kldload */
 		uprintf("Playground KLD loaded.\n\n");
 		uprintf("sysctl debug.callout_panic=1            panic from a callout\n");
