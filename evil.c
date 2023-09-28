@@ -384,7 +384,8 @@ playground_modevent(struct module *m, int cmd, void *arg)
  
 	switch (cmd) {
 	case MOD_LOAD:                /* kldload */
-		uprintf("Playground KLD loaded.\n\n");
+		printf("kernel-evil playground KLD loaded.\n");
+		uprintf("kernel-evil playground KLD loaded.\n\n");
 		uprintf("sysctl debug.callout_panic=1            panic from a callout\n");
                 uprintf("sysctl debug.leakmem=1024               leak 1K\n");
 		uprintf("sysctl debug.test_redzone=1             redzone test\n");
