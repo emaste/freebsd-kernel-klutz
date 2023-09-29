@@ -377,14 +377,14 @@ SYSCTL_PROC(_debug, OID_AUTO, fpu_in_kernel, CTLTYPE_INT|CTLFLAG_RW,
  * Load handler that deals with the loading and unloading of a KLD.
  */
 static int
-playground_modevent(struct module *m, int cmd, void *arg)
+klutz_modevent(struct module *m, int cmd, void *arg)
 {
 	int err = 0;
  
 	switch (cmd) {
 	case MOD_LOAD:                /* kldload */
-		printf("kernel-evil playground KLD loaded.\n");
-		uprintf("kernel-evil playground KLD loaded.\n\n");
+		printf("klutz misbehaviour KLD loaded.\n");
+		uprintf("klutz misbehaviour KLD loaded.\n\n");
 		uprintf("sysctl debug.panic=1                    panic from sysctl handler\n");
 		uprintf("sysctl debug.callout_panic=1            panic from a callout\n");
                 uprintf("sysctl debug.leakmem=1024               leak 1K\n");
@@ -401,7 +401,7 @@ playground_modevent(struct module *m, int cmd, void *arg)
 		uprintf("sysctl debug.fpu_in_kernel=1		execute fpu code\n");
 		break;
 	case MOD_UNLOAD:              /* kldunload */
-		uprintf("Playground KLD unloaded.\n");
+		uprintf("klutz misbehaviour KLD unloaded.\n");
 		break;
 	default:
 		err = EINVAL;
@@ -412,10 +412,10 @@ playground_modevent(struct module *m, int cmd, void *arg)
 
 /* Declare this module to the rest of the kernel */
 
-static moduledata_t playground_mod = {
-	"playground",
-	playground_modevent,
+static moduledata_t klutz_mod = {
+	"klutz",
+	klutz_modevent,
 	NULL
 };
 
-DECLARE_MODULE(playground, playground_mod, SI_SUB_KLD, SI_ORDER_ANY);
+DECLARE_MODULE(klutz, klutz_mod, SI_SUB_KLD, SI_ORDER_ANY);
