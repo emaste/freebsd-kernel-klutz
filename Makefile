@@ -1,11 +1,8 @@
-SRCS=evil.c
+SRCS=klutz.c
 
 CWARNEXTRA=-Wno-infinite-recursion
 
-PG_ARCH!=uname -m
-PG_MAJOR!=uname -r | sed 's/\..*//'
-
-KMOD=evil-${PG_ARCH}-${PG_MAJOR}
+KMOD=klutz
 
 DEBUG_FLAGS=-g -Wno-error
 
